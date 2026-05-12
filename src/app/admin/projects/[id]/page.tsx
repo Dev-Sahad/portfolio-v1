@@ -1,5 +1,4 @@
 "use client";
-
 export const dynamicParams = true;
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
