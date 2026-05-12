@@ -6,6 +6,8 @@
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
+  return[];
+}
   try {
     const { createClient } = await import('@supabase/supabase-js')
     const supabase = createClient(
