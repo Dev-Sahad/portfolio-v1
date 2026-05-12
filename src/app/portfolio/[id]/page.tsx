@@ -1,6 +1,3 @@
-// ====== PORTFOLIO DETAIL PAGE ======
-// src/app/portfolio/[id]/page.tsx
-
 'use client'
 
 export const dynamicParams = true;
