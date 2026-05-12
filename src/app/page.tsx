@@ -17,56 +17,57 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false)
   const [showApp, setShowApp] = useState(true)
 
-useEffect(() => {
-  const currentHash = window.location.hash
-  const pathname = window.location.pathname
+  useEffect(() => {
+    const currentHash = window.location.hash
+    const pathname = window.location.pathname
 
-  // kalau balik dari detail ke portfolio
-  if (currentHash === '#portfolio') {
-    setShowWelcome(false)
-    setShowApp(true)
-    return
-  }
-
-  const navEntries = performance.getEntriesByType('navigation')
-  const navigationType =
-    navEntries.length > 0
-      ? (navEntries[0] as PerformanceNavigationTiming).type
-      : null
-
-  const isReload = navigationType === 'reload'
-
-  // hanya homepage yang reset intro
-  if (isReload && pathname === '/') {
-    sessionStorage.removeItem('introPlayed')
-    sessionStorage.removeItem('heroPlayed')
-
-    if (window.location.hash) {
-      history.replaceState(null, '', '/')
-    }
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'instant',
-    })
-  }
-
-  if (!hasPlayedIntro()) {
-    setShowWelcome(true)
-    setShowApp(false)
-
-    const timer = setTimeout(() => {
+    // kalau balik dari detail ke portfolio
+    if (currentHash === '#portfolio') {
       setShowWelcome(false)
       setShowApp(true)
-      setIntroPlayed()
-    }, 2800)
+      return
+    }
 
-    return () => clearTimeout(timer)
-  } else {
-    setShowWelcome(false)
-    setShowApp(true)
-  }
-}, [])
+    const navEntries = performance.getEntriesByType('navigation')
+    const navigationType =
+      navEntries.length > 0
+        ? (navEntries[0] as PerformanceNavigationTiming).type
+        : null
+
+    const isReload = navigationType === 'reload'
+
+    // hanya homepage yang reset intro
+    if (isReload && pathname === '/') {
+      sessionStorage.removeItem('introPlayed')
+      sessionStorage.removeItem('heroPlayed')
+
+      if (window.location.hash) {
+        history.replaceState(null, '', '/')
+      }
+
+      // Use a valid scroll behavior value. "instant" is not a standard option — use "auto" for immediate jump.
+      window.scrollTo({
+        top: 0,
+        behavior: 'auto',
+      })
+    }
+
+    if (!hasPlayedIntro()) {
+      setShowWelcome(true)
+      setShowApp(false)
+
+      const timer = setTimeout(() => {
+        setShowWelcome(false)
+        setShowApp(true)
+        setIntroPlayed()
+      }, 2800)
+
+      return () => clearTimeout(timer)
+    } else {
+      setShowWelcome(false)
+      setShowApp(true)
+    }
+  }, [])
 
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
