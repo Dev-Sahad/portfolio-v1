@@ -181,26 +181,26 @@ export default function WelcomeScreen() {
 
         {/* DOMAIN CAPSULE */}
         <motion.div
-  initial={{ opacity: 0, y: -40 }} // ⬅️ from above
-  animate={{ opacity: 1, y: 0 }}
-  transition={{
-    delay: 2.1,
-    duration: 1.6,
-    ease: [0.22, 1, 0.36, 1],
-  }}
-  style={{
-    padding: '6px 14px',
-    borderRadius: '999px',
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.04)',
-    backdropFilter: 'blur(10px)',
-    fontSize: '12px',
-    letterSpacing: '0.12em',
-    color: 'rgba(255,255,255,0.7)',
-  }}
->
-  www.dev-sahad.vercel.app
-</motion.div>
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 2.1,
+            duration: 1.6,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          style={{
+            padding: '6px 14px',
+            borderRadius: '999px',
+            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'rgba(255,255,255,0.04)',
+            backdropFilter: 'blur(10px)',
+            fontSize: '12px',
+            letterSpacing: '0.12em',
+            color: 'rgba(255,255,255,0.7)',
+          }}
+        >
+          www.dev-sahad.vercel.app
+        </motion.div>
       </motion.div>
     </div>
   )
