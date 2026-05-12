@@ -3,6 +3,27 @@
 
 'use client'
 
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    const { data: projects } = await supabase
+      .from('projects')
+      .select('id')
+      .order('created_at', { ascending: false })
+    return (projects || []).map((project: { id: string | number }) => ({
+      id: String(project.id),
+    }))
+  } catch {
+    return []
+  }
+}
+
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
