@@ -18,108 +18,183 @@ import {
   X,
 } from "lucide-react";
 
+// Generate static params for all projects (required for static export)
+export async function generateStaticParams() {
+  try {
+    const { data: projects } = await supabase
+      .from("projects")
+      .select("id")
+      .order("created_at", { ascending: false });
+
+    return (projects || []).map((project: any) => ({
+      id: String(project.id),
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
+
+interface Project {
+  id: string | number;
+  title: string;
+  description: string;
+  technologies: string;
+  key_features: string;
+  live_url?: string;
+  github_url?: string;
+  image_url?: string;
+  image_urls?: string[];
+}
+
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  const [project, setProject] = useState<any>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState<any>({});
+  const [form, setForm] = useState<Partial<Project>>({});
   const [currentImage, setCurrentImage] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchProject();
-  }, []);
+  }, [id]);
 
   const fetchProject = async () => {
-    const { data } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("id", id)
-      .single();
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-    setProject(data);
-    setForm(data);
+      if (error) throw error;
+
+      setProject(data);
+      setForm(data);
+    } catch (error) {
+      console.error("Error fetching project:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to load project.",
+        icon: "error",
+        background: "#101010",
+        color: "#fff",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async () => {
-  const result = await Swal.fire({
-    title: "Delete project?",
-    text: "Deleted projects cannot be restored.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, Delete",
-    cancelButtonText: "Batal",
-    background: "#101010",
-    color: "#fff",
-    confirmButtonColor: "#ef4444",
-    cancelButtonColor: "#27272a",
-    reverseButtons: true,
-  });
-
-  if (!result.isConfirmed) return;
-
-  const { error } = await supabase.from("projects").delete().eq("id", id);
-
-  if (!error) {
-    await Swal.fire({
-      title: "Succeed!",
-      text: "Project successfully deleted.",
-      icon: "success",
-      timer: 1800,
-      showConfirmButton: false,
+    const result = await Swal.fire({
+      title: "Delete project?",
+      text: "Deleted projects cannot be restored.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Delete",
+      cancelButtonText: "Cancel",
       background: "#101010",
       color: "#fff",
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#27272a",
+      reverseButtons: true,
     });
 
-    router.push("/admin/projects");
-  } else {
-    Swal.fire({
-      title: "Fail",
-      text: "Project failed to delete.",
-      icon: "error",
-      background: "#101010",
-      color: "#fff",
-    });
-  }
-};
+    if (!result.isConfirmed) return;
+
+    try {
+      const { error } = await supabase.from("projects").delete().eq("id", id);
+
+      if (error) throw error;
+
+      await Swal.fire({
+        title: "Success!",
+        text: "Project successfully deleted.",
+        icon: "success",
+        timer: 1800,
+        showConfirmButton: false,
+        background: "#101010",
+        color: "#fff",
+      });
+
+      router.push("/admin/projects");
+    } catch (error) {
+      console.error("Delete error:", error);
+      Swal.fire({
+        title: "Failed",
+        text: "Project failed to delete.",
+        icon: "error",
+        background: "#101010",
+        color: "#fff",
+      });
+    }
+  };
 
   const handleUpdate = async () => {
-  const { error } = await supabase
-    .from("projects")
-    .update(form)
-    .eq("id", id);
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update(form)
+        .eq("id", id);
 
-  if (!error) {
-    setProject(form);
-    setEditMode(false);
+      if (error) throw error;
 
-    Swal.fire({
-      title: "Succeed",
-      text: "Project successfully updated.",
-      icon: "success",
-      timer: 1800,
-      showConfirmButton: false,
-      background: "#101010",
-      color: "#fff",
-    });
-  } else {
-    Swal.fire({
-      title: "Fail",
-      text: "Project update failed.",
-      icon: "error",
-      background: "#101010",
-      color: "#fff",
-    });
-  }
-};
-  if (!project)
+      setProject(form as Project);
+      setEditMode(false);
+
+      Swal.fire({
+        title: "Success",
+        text: "Project successfully updated.",
+        icon: "success",
+        timer: 1800,
+        showConfirmButton: false,
+        background: "#101010",
+        color: "#fff",
+      });
+    } catch (error) {
+      console.error("Update error:", error);
+      Swal.fire({
+        title: "Failed",
+        text: "Project update failed.",
+        icon: "error",
+        background: "#101010",
+        color: "#fff",
+      });
+    }
+  };
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">
-        Loading...
+        <motion.div
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          Loading...
+        </motion.div>
       </div>
     );
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">
+        <div className="text-center">
+          <p className="text-lg mb-4">Project not found</p>
+          <button
+            onClick={() => router.back()}
+            className="text-white/50 hover:text-white transition"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const tech = (form.technologies || "")
     .split(",")
@@ -161,7 +236,8 @@ export default function ProjectDetailPage() {
           >
             <button
               onClick={() => setPreviewOpen(false)}
-              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
+              aria-label="Close preview"
             >
               <X size={18} />
             </button>
@@ -169,7 +245,8 @@ export default function ProjectDetailPage() {
             {currentImage > 0 && (
               <button
                 onClick={prevImage}
-                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
+                aria-label="Previous image"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -181,13 +258,15 @@ export default function ProjectDetailPage() {
               exit={{ scale: 0.96, opacity: 0 }}
               transition={{ duration: 0.25 }}
               src={galleryImages[currentImage]}
+              alt={`Project preview ${currentImage + 1}`}
               className="max-w-[92vw] max-h-[78vh] rounded-2xl object-contain"
             />
 
             {currentImage < galleryImages.length - 1 && (
               <button
                 onClick={nextImage}
-                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
+                aria-label="Next image"
               >
                 <ChevronRight size={18} />
               </button>
@@ -203,6 +282,7 @@ export default function ProjectDetailPage() {
         transition={{ duration: 0.4 }}
         onClick={() => router.back()}
         className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition mb-6"
+        aria-label="Go back"
       >
         <ArrowLeft size={14} />
         Back
@@ -219,9 +299,11 @@ export default function ProjectDetailPage() {
         >
           {editMode ? (
             <input
-              value={form.title}
+              type="text"
+              value={form.title || ""}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="text-2xl md:text-4xl font-bold bg-transparent border-b border-white/15 w-full outline-none mb-3"
+              className="text-2xl md:text-4xl font-bold bg-transparent border-b border-white/15 w-full outline-none mb-3 focus:border-white/40 transition"
+              placeholder="Project title"
             />
           ) : (
             <h1 className="text-[28px] sm:text-[34px] md:text-[42px] font-bold leading-tight tracking-tight mb-3">
@@ -233,14 +315,15 @@ export default function ProjectDetailPage() {
 
           {editMode ? (
             <textarea
-              value={form.description}
+              value={form.description || ""}
               onChange={(e) =>
                 setForm({
                   ...form,
                   description: e.target.value,
                 })
               }
-              className="w-full min-h-[120px] bg-[#111] border border-white/10 rounded-2xl p-4 text-sm outline-none mb-6"
+              className="w-full min-h-[120px] bg-[#111] border border-white/10 rounded-2xl p-4 text-sm outline-none mb-6 focus:border-white/30 transition resize-none"
+              placeholder="Project description"
             />
           ) : (
             <p className="text-sm md:text-[13px] leading-7 text-white/60 text-justify mb-6">
@@ -285,6 +368,7 @@ export default function ProjectDetailPage() {
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-8">
             {editMode ? (
               <input
+                type="url"
                 value={form.live_url || ""}
                 onChange={(e) =>
                   setForm({
@@ -293,12 +377,13 @@ export default function ProjectDetailPage() {
                   })
                 }
                 placeholder="Live Demo URL"
-                className="bg-[#111] border border-white/10 rounded-xl px-4 py-3 w-full sm:w-[260px] outline-none text-sm"
+                className="bg-[#111] border border-white/10 rounded-xl px-4 py-3 w-full sm:w-[260px] outline-none text-sm focus:border-white/30 transition"
               />
             ) : project.live_url ? (
               <a
                 href={project.live_url}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center sm:justify-start gap-2 px-4 py-3 rounded-xl bg-[#101010] border border-white/10 hover:bg-white/5 transition"
               >
                 <ExternalLink size={15} />
@@ -313,6 +398,7 @@ export default function ProjectDetailPage() {
 
             {editMode ? (
               <input
+                type="url"
                 value={form.github_url || ""}
                 onChange={(e) =>
                   setForm({
@@ -321,12 +407,13 @@ export default function ProjectDetailPage() {
                   })
                 }
                 placeholder="Github URL"
-                className="bg-[#111] border border-white/10 rounded-xl px-4 py-3 w-full sm:w-[260px] outline-none text-sm"
+                className="bg-[#111] border border-white/10 rounded-xl px-4 py-3 w-full sm:w-[260px] outline-none text-sm focus:border-white/30 transition"
               />
             ) : project.github_url ? (
               <a
                 href={project.github_url}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center sm:justify-start gap-2 px-4 py-3 rounded-xl bg-[#101010] border border-white/10 hover:bg-white/5 transition"
               >
                 <GitBranch size={15} />
@@ -349,14 +436,16 @@ export default function ProjectDetailPage() {
 
             {editMode ? (
               <input
-                value={form.technologies}
+                type="text"
+                value={form.technologies || ""}
                 onChange={(e) =>
                   setForm({
                     ...form,
                     technologies: e.target.value,
                   })
                 }
-                className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 outline-none"
+                placeholder="Comma-separated technologies"
+                className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-white/30 transition text-sm"
               />
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -398,6 +487,7 @@ export default function ProjectDetailPage() {
                     duration: 0.35,
                   }}
                   src={galleryImages[currentImage]}
+                  alt={`${project.title} - Image ${currentImage + 1}`}
                   onClick={() => setPreviewOpen(true)}
                   className="w-full h-[200px] sm:h-[240px] md:h-[270px] xl:h-[280px] 2xl:h-[300px] object-cover cursor-pointer"
                 />
@@ -405,7 +495,8 @@ export default function ProjectDetailPage() {
                 {currentImage > 0 && (
                   <button
                     onClick={prevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center hover:bg-black/80 transition"
+                    aria-label="Previous image"
                   >
                     <ChevronLeft size={17} />
                   </button>
@@ -414,7 +505,8 @@ export default function ProjectDetailPage() {
                 {currentImage < galleryImages.length - 1 && (
                   <button
                     onClick={nextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center hover:bg-black/80 transition"
+                    aria-label="Next image"
                   >
                     <ChevronRight size={17} />
                   </button>
@@ -430,8 +522,9 @@ export default function ProjectDetailPage() {
                       className={`transition-all rounded-full ${
                         currentImage === i
                           ? "w-7 h-2 bg-white"
-                          : "w-2 h-2 bg-white/30"
+                          : "w-2 h-2 bg-white/30 hover:bg-white/50"
                       }`}
+                      aria-label={`Go to image ${i + 1}`}
                     />
                   ))}
                 </div>
@@ -453,20 +546,21 @@ export default function ProjectDetailPage() {
 
             {editMode ? (
               <textarea
-                value={form.key_features}
+                value={form.key_features || ""}
                 onChange={(e) =>
                   setForm({
                     ...form,
                     key_features: e.target.value,
                   })
                 }
-                className="w-full min-h-[160px] bg-[#0f0f0f] border border-white/10 rounded-xl p-4 outline-none"
+                placeholder="Comma-separated features"
+                className="w-full min-h-[160px] bg-[#0f0f0f] border border-white/10 rounded-xl p-4 outline-none focus:border-white/30 transition resize-none"
               />
             ) : (
               <ul className="space-y-3 text-sm text-white/65 leading-6">
                 {features.map((f: string, i: number) => (
                   <li key={i} className="flex gap-3">
-                    <span className="text-white/35 mt-[2px]">•</span>
+                    <span className="text-white/35 mt-[2px] shrink-0">•</span>
 
                     <span>{f.trim()}</span>
                   </li>
@@ -489,7 +583,10 @@ export default function ProjectDetailPage() {
             </button>
 
             <button
-              onClick={() => setEditMode(false)}
+              onClick={() => {
+                setEditMode(false);
+                setForm(project);
+              }}
               className="w-full sm:w-auto px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition"
             >
               Cancel
@@ -499,20 +596,4 @@ export default function ProjectDetailPage() {
           <>
             <button
               onClick={() => setEditMode(true)}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition"
-            >
-              Edit
-            </button>
-
-            <button
-              onClick={handleDelete}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-red-500 hover:bg-red-600 transition"
-            >
-              Delete
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl border border-w
