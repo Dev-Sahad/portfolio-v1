@@ -184,7 +184,7 @@ export default function ContactForm() {
 
         {/* LINKEDIN */} 
         <motion.a
-          href="https://www.linkedin.com/in/rifqimuhammadaliya/"  
+          href="https://www.linkedin.com/in/muhammad-sahad-78b827352"  
           target="_blank"
           rel="noopener noreferrer"
           variants={fieldVariants}
@@ -205,7 +205,7 @@ export default function ContactForm() {
 
             <div>
               <p className="text-sm font-medium">LinkedIn</p>
-              <p className="text-xs text-white/35">@linkedin</p>
+              <p className="text-xs text-white/35">@muhammad-sahad</p>
             </div>
           </div>
 
