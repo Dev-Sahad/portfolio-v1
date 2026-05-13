@@ -1,6 +1,6 @@
 "use client";
 export const dynamicParams = true;
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -17,23 +17,6 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
-
-// Generate static params for all projects (required for static export)
-// export async function generateStaticParams() {
-//   try {
-//     const { data: projects } = await supabase
-//       .from("projects")
-//       .select("id")
-//       .order("created_at", { ascending: false });
-
-//     return (projects || []).map((project: any) => ({
-//       id: String(project.id),
-//     }));
-//   } catch (error) {
-//     console.error("Error generating static params:", error);
-//     return [];
-//   }
-// }
 
 interface Project {
   id: string | number;
@@ -59,37 +42,37 @@ export default function ProjectDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from("projects")
+          .select("*")
+          .eq("id", id)
+          .single();
+  
+        if (error) throw error;
+  
+        setProject(data);
+        setForm(data);
+      } catch (error) {
+        console.error("Error fetching project:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to load project.",
+          icon: "error",
+          background: "#101010",
+          color: "#fff",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (id) {
       fetchProject();
     }
   }, [id]);
-
-  const fetchProject = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-
-      setProject(data);
-      setForm(data);
-    } catch (error) {
-      console.error("Error fetching project:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Failed to load project.",
-        icon: "error",
-        background: "#101010",
-        color: "#fff",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleDelete = async () => {
     const result = await Swal.fire({

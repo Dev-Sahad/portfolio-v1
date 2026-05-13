@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/Sidebar";
 import { supabase } from "@/lib/supabase";
@@ -28,25 +28,7 @@ export default function DashboardPage() {
   const [recentComments, setRecentComments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) {
-      router.replace("/admin/login");
-      return;
-    }
-
-    setAuthorized(true);
-    fetchDashboard();
-  };
-
-  const fetchDashboard = async () => {
+  const fetchDashboard = useCallback(async () => {
     try {
       const [
         projectsRes,
@@ -106,7 +88,25 @@ export default function DashboardPage() {
     }
 
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+  
+      if (!session) {
+        router.replace("/admin/login");
+        return;
+      }
+  
+      setAuthorized(true);
+      fetchDashboard();
+    };
+
+    checkAuth();
+  }, [fetchDashboard, router]);
 
   const cards = [
     {

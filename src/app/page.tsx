@@ -21,12 +21,12 @@ export default function Home() {
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
-    // kalau balik dari detail ke portfolio
     if (currentHash === '#portfolio') {
-      setShowWelcome(false)
-      setShowApp(true)
       return
     }
+
+    setShowWelcome(true)
+    setShowApp(false)
 
     const navEntries = performance.getEntriesByType('navigation')
     const navigationType =
@@ -36,7 +36,6 @@ export default function Home() {
 
     const isReload = navigationType === 'reload'
 
-    // hanya homepage yang reset intro
     if (isReload && pathname === '/') {
       sessionStorage.removeItem('introPlayed')
       sessionStorage.removeItem('heroPlayed')
@@ -45,7 +44,6 @@ export default function Home() {
         history.replaceState(null, '', '/')
       }
 
-      // Use a valid scroll behavior value. "instant" is not a standard option — use "auto" for immediate jump.
       window.scrollTo({
         top: 0,
         behavior: 'auto',
@@ -53,9 +51,6 @@ export default function Home() {
     }
 
     if (!hasPlayedIntro()) {
-      setShowWelcome(true)
-      setShowApp(false)
-
       const timer = setTimeout(() => {
         setShowWelcome(false)
         setShowApp(true)
@@ -87,11 +82,6 @@ export default function Home() {
             initial={{ y: 0 }}
             animate={{ y: 0 }}
             exit={{ y: '-100%' }}
-            onAnimationStart={(definition) => {
-              if (definition === 'exit') {
-                setShowApp(true)
-              }
-            }}
             transition={{
               duration: 1.2,
               ease: [0.76, 0, 0.24, 1],

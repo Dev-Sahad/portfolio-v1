@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Plus, Trash2, Pencil, X, Upload } from 'lucide-react';
 import Sidebar from '@/app/admin/Sidebar';
 import { createClient } from '@/utils/supabase/client';
@@ -21,6 +21,18 @@ export default function CertificatesPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const fetchCertificates = async () => {
+      const { data } = await supabase
+        .from('certificates')
+        .select('*')
+        .order('created_at', {
+          ascending: true,
+        });
+
+      setCertificates(data || []);
+      setLoading(false);
+    };
+
     fetchCertificates();
 
     const channel = supabase
@@ -41,19 +53,7 @@ export default function CertificatesPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  const fetchCertificates = async () => {
-    const { data } = await supabase
-      .from('certificates')
-      .select('*')
-      .order('created_at', {
-        ascending: true,
-      });
-
-    setCertificates(data || []);
-    setLoading(false);
-  };
+  }, [supabase]);
 
   const resetForm = () => {
     setTitle('');
@@ -114,8 +114,6 @@ export default function CertificatesPage() {
     setSaving(false);
     setOpen(false);
     resetForm();
-
-    fetchCertificates();
   };
 
   const handleDelete = async (id: number) => {
@@ -216,6 +214,7 @@ export default function CertificatesPage() {
                     {item.image_url ? (
                       <img
                         src={item.image_url}
+                        alt={item.title}
                         className='w-full h-full object-cover hover:scale-105 transition duration-500'
                       />
                     ) : (
@@ -283,7 +282,7 @@ export default function CertificatesPage() {
             {/* IMAGE */}
             <label className='border border-dashed border-white/10 rounded-2xl bg-[#0f0f0f] h-44 sm:h-52 flex flex-col items-center justify-center cursor-pointer overflow-hidden mb-4'>
               {preview ? (
-                <img src={preview} className='w-full h-full object-cover' />
+                <img src={preview} alt="preview" className='w-full h-full object-cover' />
               ) : (
                 <>
                   <Upload size={24} className='text-white/50 mb-2' />

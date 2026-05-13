@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Sidebar from "@/app/admin/Sidebar";
 import { supabase } from "@/lib/supabase";
 import { Plus, Trash2, Pencil, X, Upload } from "lucide-react";
@@ -20,6 +20,21 @@ export default function TechStackPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const fetchTechStacks = async () => {
+      const { data } = await supabase
+        .from("tech_stack")
+        .select("*");
+  
+      const sorted = (data || []).sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() -
+          new Date(b.created_at).getTime()
+      );
+  
+      setTechStacks(sorted);
+      setLoading(false);
+    };
+
     fetchTechStacks();
 
     const channel = supabase
@@ -41,21 +56,6 @@ export default function TechStackPage() {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  const fetchTechStacks = async () => {
-    const { data } = await supabase
-      .from("tech_stack")
-      .select("*");
-
-    const sorted = (data || []).sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() -
-        new Date(b.created_at).getTime()
-    );
-
-    setTechStacks(sorted);
-    setLoading(false);
-  };
 
   const resetForm = () => {
     setName("");
@@ -117,7 +117,6 @@ export default function TechStackPage() {
     setOpen(false);
     resetForm();
 
-    fetchTechStacks();
   };
 
   const handleDelete = async (id: number) => {
@@ -229,6 +228,7 @@ export default function TechStackPage() {
                       {item.logo_url ? (
                         <img
                           src={item.logo_url}
+                          alt={item.name}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -289,6 +289,7 @@ export default function TechStackPage() {
               {preview ? (
                 <img
                   src={preview}
+                  alt="preview"
                   className="w-full h-full object-cover"
                 />
               ) : (

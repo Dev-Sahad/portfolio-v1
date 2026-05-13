@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Sidebar from "@/app/admin/Sidebar";
 import { supabase } from "@/lib/supabase";
 import Swal from "sweetalert2";
@@ -17,6 +17,19 @@ export default function AdminCommentsPage() {
   const [comments, setComments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState<Record<number, string>>({});
+
+  const fetchComments = useCallback(async () => {
+    setLoading(true);
+
+    const { data } = await supabase
+      .from("comments")
+      .select("*")
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    setComments(data || []);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchComments();
@@ -39,20 +52,7 @@ export default function AdminCommentsPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  const fetchComments = async () => {
-    setLoading(true);
-
-    const { data } = await supabase
-      .from("comments")
-      .select("*")
-      .order("is_pinned", { ascending: false })
-      .order("created_at", { ascending: false });
-
-    setComments(data || []);
-    setLoading(false);
-  };
+  }, [fetchComments]);
 
   const deleteComment = async (id: number) => {
     const result = await Swal.fire({
@@ -193,7 +193,7 @@ export default function AdminCommentsPage() {
             </div>
 
             <button
-              onClick={fetchComments}
+              onClick={() => fetchComments()}
               className="h-11 px-5 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition flex items-center justify-center gap-2 text-sm w-full sm:w-fit"
             >
               <RefreshCcw size={14} />
@@ -248,6 +248,7 @@ export default function AdminCommentsPage() {
                         {comment.image_url && (
                           <img
                             src={comment.image_url}
+                            alt={comment.comment}
                             className="rounded-2xl border border-white/10 w-full max-w-full sm:max-w-[260px] object-cover mb-4"
                           />
                         )}

@@ -14,61 +14,44 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 
-export default function Sidebar() {
+const menus = [
+  {
+    name: "Dashboard",
+    icon: LayoutDashboard,
+    path: "/admin/dashboard",
+  },
+  {
+    name: "Projects",
+    icon: Folder,
+    path: "/admin/projects",
+  },
+  {
+    name: "Certificates",
+    icon: Award,
+    path: "/admin/certificates",
+  },
+  {
+    name: "Comments",
+    icon: MessageSquare,
+    path: "/admin/comments",
+  },
+  {
+    name: "Tech Stack",
+    icon: Layers,
+    path: "/admin/tech",
+  },
+];
+
+const SidebarContent = ({
+  hideTitle = false,
+  onLinkClick,
+}: {
+  hideTitle?: boolean;
+  onLinkClick?: () => void;
+}) => {
   const pathname = usePathname();
 
-  const [open, setOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  const menus = [
-    {
-      name: "Dashboard",
-      icon: LayoutDashboard,
-      path: "/admin/dashboard",
-    },
-    {
-      name: "Projects",
-      icon: Folder,
-      path: "/admin/projects",
-    },
-    {
-      name: "Certificates",
-      icon: Award,
-      path: "/admin/certificates",
-    },
-    {
-      name: "Comments",
-      icon: MessageSquare,
-      path: "/admin/comments",
-    },
-    {
-      name: "Tech Stack",
-      icon: Layers,
-      path: "/admin/tech",
-    },
-  ];
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    return () =>
-      window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  const SidebarContent = ({
-    hideTitle = false,
-  }: {
-    hideTitle?: boolean;
-  }) => (
+  return (
     <>
       {/* TOP */}
       <div>
@@ -88,6 +71,7 @@ export default function Sidebar() {
                 key={i}
                 href={menu.path}
                 className="block"
+                onClick={onLinkClick}
               >
                 <motion.div
                   whileHover={{
@@ -153,6 +137,23 @@ export default function Sidebar() {
       </div>
     </>
   );
+};
+
+export default function Sidebar() {
+  const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () =>
+      window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
     <>
@@ -221,7 +222,10 @@ export default function Sidebar() {
 
                   {/* CONTENT */}
                   <div className="flex-1 flex flex-col justify-between">
-                    <SidebarContent hideTitle />
+                    <SidebarContent
+                      hideTitle
+                      onLinkClick={() => setOpen(false)}
+                    />
                   </div>
                 </motion.aside>
               </>

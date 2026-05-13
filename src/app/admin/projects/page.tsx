@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/Sidebar";
 import { Plus } from "lucide-react";
@@ -15,6 +15,24 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*");
+  
+      if (!error && data) {
+        const sortedProjects = data.sort(
+          (a, b) =>
+            new Date(a.created_at).getTime() -
+            new Date(b.created_at).getTime()
+        );
+  
+        setProjects(sortedProjects);
+      }
+  
+      setLoading(false);
+    };
+
     fetchProjects();
 
     const channel = supabase
@@ -36,24 +54,6 @@ export default function ProjectsPage() {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  const fetchProjects = async () => {
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*");
-
-    if (!error && data) {
-      const sortedProjects = data.sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() -
-          new Date(b.created_at).getTime()
-      );
-
-      setProjects(sortedProjects);
-    }
-
-    setLoading(false);
-  };
 
   const handleAdd = (newProject: any) => {
     setProjects((prev) => {
@@ -119,6 +119,7 @@ export default function ProjectsPage() {
                     {project.image_url ? (
                       <img
                         src={project.image_url}
+                        alt={project.title}
                         className="w-full h-full object-cover hover:scale-105 transition duration-500"
                       />
                     ) : (
