@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { container, item } from "@/lib/animations";
 
 import {
   ArrowLeft,
@@ -128,25 +127,25 @@ export default function PortfolioDetailPage() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_0.9fr] gap-8 xl:gap-12 items-start">
         {/* LEFT */}
         <motion.div
-          variants={container}
+
           initial="hidden"
           animate="show"
           className="w-full"
         >
           <motion.h1
-            variants={item}
+
             className="text-[28px] sm:text-[34px] md:text-[42px] font-bold leading-tight tracking-tight mb-3"
           >
             {project.title}
           </motion.h1>
 
           <motion.div
-            variants={item}
+
             className="w-16 h-[2px] rounded-full bg-white/20 mb-5"
           />
 
           <motion.p
-            variants={item}
+
             className="text-sm md:text-[13px] leading-7 text-white/60 text-justify mb-6"
           >
             {project.description}
@@ -154,7 +153,7 @@ export default function PortfolioDetailPage() {
 
           {/* STATS */}
           <motion.div
-            variants={item}
+
             className="grid grid-cols-2 gap-3 mb-6"
           >
             <motion.div
@@ -189,7 +188,7 @@ export default function PortfolioDetailPage() {
           </motion.div>
 
           {/* BUTTONS */}
-          <motion.div variants={item} className="flex flex-wrap gap-3 mb-8">
+          <motion.div className="flex flex-wrap gap-3 mb-8">
             {project.live_url ? (
               <a
                 href={project.live_url}
@@ -226,7 +225,7 @@ export default function PortfolioDetailPage() {
           </motion.div>
 
           {/* TECH STACK */}
-          <motion.div variants={item}>
+          <motion.div>
             <div className="flex items-center gap-2 mb-4">
               <Code2 size={15} className="text-white/70" />
               <p className="text-sm font-semibold">Technologies Used</p>
@@ -245,7 +244,7 @@ export default function PortfolioDetailPage() {
           </motion.div>
 
           {project.dev_notes && (
-            <motion.div variants={item} className="mt-8">
+            <motion.div className="mt-8">
               <h3 className="font-semibold mb-3">Developer Notes</h3>
 
               <p className="text-xs text-white/50 leading-6">
@@ -257,13 +256,13 @@ export default function PortfolioDetailPage() {
 
         {/* RIGHT */}
         <motion.div
-          variants={container}
+
           initial="hidden"
           animate="show"
           className="w-full"
         >
           {galleryImages.length > 0 && (
-            <motion.div variants={item} className="mb-6">
+            <motion.div className="mb-6">
               <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#101010] shadow-2xl shadow-black/30">
                 <motion.img
                   key={currentImage}
@@ -313,7 +312,7 @@ export default function PortfolioDetailPage() {
           )}
 
           <motion.div
-            variants={item}
+
             className="bg-[#101010] border border-white/10 rounded-3xl p-5 md:p-6"
           >
             <div className="flex items-center gap-2 mb-4">

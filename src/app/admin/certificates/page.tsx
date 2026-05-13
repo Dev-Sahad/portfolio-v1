@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Trash2, Pencil, X, Upload } from 'lucide-react';
 import Sidebar from '@/app/admin/Sidebar';

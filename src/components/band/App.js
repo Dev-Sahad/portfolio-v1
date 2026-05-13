@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Text, TrackballControls } from '@react-three/drei'
-import { متجه8 } from './Vector'
 import { useRouter } from 'next/navigation'
 
 function Word({ children, ...props }) {
@@ -56,7 +55,7 @@ function Word({ children, ...props }) {
   )
 }
 
-const日本製 = ['設計', '開発']
+const japanese = ['設計', '開発']
 const english = ['Design', 'Development']
 const links = [
   {
@@ -89,7 +88,7 @@ const socials = [
 
 const combined = [...links, ...socials]
 const cloudWords = [
-  ...日本製.map((text, i) => ({ text, isLink: false, index: i })),
+  ...japanese.map((text, i) => ({ text, isLink: false, index: i })),
   ...english.map((text, i) => ({ text, isLink: false, index: i + 2 })),
   ...combined.map((item, i) => ({
     text: item.name,
@@ -132,13 +131,13 @@ function Cloud({ count = 4, radius = 20 }) {
 
 const Spline = () => {
   const [curve] = useState(() => {
-    let curve = new متجه8([
-      [1, 1, 1],
-      [1, 1, 1],
-      [1, 1, 1],
-      [1, 1, 1],
-      [1, 1, 1],
-      [1, 1, 1],
+    let curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(1, 1, 1),
+      new THREE.Vector3(1, 1, 1),
+      new THREE.Vector3(1, 1, 1),
+      new THREE.Vector3(1, 1, 1),
+      new THREE.Vector3(1, 1, 1),
+      new THREE.Vector3(1, 1, 1),
     ])
     return curve
   })
@@ -147,10 +146,6 @@ const Spline = () => {
     return new THREE.TextureLoader().load(
       'https://fiqry.dev/images/band-texture.png',
     )
-  })
-
-  useFrame(() => {
-    curve.getPoint(0, e)
   })
 
   return (
