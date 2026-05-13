@@ -16,7 +16,7 @@ export default function RootLayout({
       <body>
         <RefreshRedirect />
         {children}
-        </body>
+      </body>
     </html>
   );
 }
