@@ -1,32 +1,28 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Pencil, X, Upload } from 'lucide-react';
 import Sidebar from '@/app/admin/Sidebar';
-import { createClient } from '@/utils/supabase/client';
+import { supabase } from '@/lib/supabase';
 import Swal from 'sweetalert2';
 
-export default function CertificatesPage() {
-  const supabase = createClient();
+export default function TechnologiesPage() {
   const router = useRouter();
-
-  const [certificates, setCertificates] = useState<any[]>([]);
+  const [technologies, setTechnologies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
 
-  const [title, setTitle] = useState('');
+  const [name, setName] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState('');
 
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const checkUserAndFetchCertificates = async () => {
+    const checkUserAndFetchTechnologies = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         router.push('/admin/login');
@@ -34,29 +30,27 @@ export default function CertificatesPage() {
       }
 
       const { data } = await supabase
-        .from('certificates')
+        .from('technologies')
         .select('*')
-        .order('created_at', {
-          ascending: true,
-        });
+        .order('name', { ascending: true });
 
-      setCertificates(data || []);
+      setTechnologies(data || []);
       setLoading(false);
     };
 
-    checkUserAndFetchCertificates();
+    checkUserAndFetchTechnologies();
 
     const channel = supabase
-      .channel('certificates-realtime')
+      .channel('technologies-realtime')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'certificates',
+          table: 'technologies',
         },
         () => {
-          checkUserAndFetchCertificates();
+          checkUserAndFetchTechnologies();
         },
       )
       .subscribe();
@@ -64,10 +58,10 @@ export default function CertificatesPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, router]);
+  }, [router]);
 
   const resetForm = () => {
-    setTitle('');
+    setName('');
     setImage(null);
     setPreview('');
     setEditId(null);
@@ -83,22 +77,22 @@ export default function CertificatesPage() {
   };
 
   const handleSave = async () => {
-    if (!title.trim()) return;
+    if (!name.trim()) return;
 
     setSaving(true);
 
     let imageUrl = preview;
 
     if (image) {
-      const fileName = `certificate-${Date.now()}-${image.name}`;
+      const fileName = `technology-${Date.now()}-${image.name}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('certificates')
+        .from('technologies')
         .upload(fileName, image);
 
       if (!uploadError) {
         const { data } = supabase.storage
-          .from('certificates')
+          .from('technologies')
           .getPublicUrl(fileName);
 
         imageUrl = data.publicUrl;
@@ -107,16 +101,16 @@ export default function CertificatesPage() {
 
     if (editId) {
       await supabase
-        .from('certificates')
+        .from('technologies')
         .update({
-          title,
+          name,
           image_url: imageUrl,
         })
         .eq('id', editId);
     } else {
-      await supabase.from('certificates').insert([
+      await supabase.from('technologies').insert([
         {
-          title,
+          name,
           image_url: imageUrl,
         },
       ]);
@@ -129,8 +123,8 @@ export default function CertificatesPage() {
 
   const handleDelete = async (id: number) => {
     const result = await Swal.fire({
-      title: 'Delete Certificate?',
-      text: 'Deleted certificates cannot be restored.',
+      title: 'Delete Technology?',
+      text: 'Deleted technologies cannot be restored.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, Delete',
@@ -144,14 +138,14 @@ export default function CertificatesPage() {
 
     if (!result.isConfirmed) return;
 
-    const { error } = await supabase.from('certificates').delete().eq('id', id);
+    const { error } = await supabase.from('technologies').delete().eq('id', id);
 
     if (!error) {
-      setCertificates((prev) => prev.filter((item) => item.id !== id));
+      setTechnologies((prev) => prev.filter((item) => item.id !== id));
 
       Swal.fire({
         title: 'Deleted!',
-        text: 'Certificate successfully deleted.',
+        text: 'Technology successfully deleted.',
         icon: 'success',
         timer: 1800,
         showConfirmButton: false,
@@ -161,7 +155,7 @@ export default function CertificatesPage() {
     } else {
       Swal.fire({
         title: 'Failed',
-        text: 'Failed to delete certificate.',
+        text: 'Failed to delete technology.',
         icon: 'error',
         background: '#111',
         color: '#fff',
@@ -170,7 +164,7 @@ export default function CertificatesPage() {
   };
 
   const handleEdit = (item: any) => {
-    setTitle(item.title);
+    setName(item.name);
     setPreview(item.image_url);
     setEditId(item.id);
     setOpen(true);
@@ -187,10 +181,10 @@ export default function CertificatesPage() {
           {/* HEADER */}
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8'>
             <div>
-              <h1 className='text-2xl sm:text-3xl font-bold'>Certificates</h1>
+              <h1 className='text-2xl sm:text-3xl font-bold'>Technologies</h1>
 
               <p className='text-sm text-white/40 mt-1'>
-                Manage your certificates
+                Manage your technologies
               </p>
             </div>
 
@@ -202,20 +196,20 @@ export default function CertificatesPage() {
               className='w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white text-black hover:scale-[1.02] transition'
             >
               <Plus size={16} />
-              Add Certificate
+              Add Technology
             </button>
           </div>
 
           {/* CONTENT */}
           {loading ? (
-            <div className='text-white/50 text-sm'>Loading certificates...</div>
-          ) : certificates.length === 0 ? (
+            <div className='text-white/50 text-sm'>Loading technologies...</div>
+          ) : technologies.length === 0 ? (
             <div className='rounded-2xl border border-white/10 bg-white/[0.03] h-[240px] flex items-center justify-center text-white/35'>
-              No certificates found
+              No technologies found
             </div>
           ) : (
             <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5 pb-6'>
-              {certificates.map((item) => (
+              {technologies.map((item) => (
                 <div
                   key={item.id}
                   className='border border-white/10 bg-white/[0.03] rounded-2xl p-4 hover:border-white/25 hover:-translate-y-1 transition-all duration-300 flex flex-col'
@@ -225,7 +219,7 @@ export default function CertificatesPage() {
                     {item.image_url ? (
                       <img
                         src={item.image_url}
-                        alt={item.title}
+                        alt={item.name}
                         className='w-full h-full object-cover hover:scale-105 transition duration-500'
                       />
                     ) : (
@@ -233,17 +227,10 @@ export default function CertificatesPage() {
                     )}
                   </div>
 
-                  {/* TITLE */}
+                  {/* NAME */}
                   <h2 className='font-semibold text-[15px] mb-3 line-clamp-2 min-h-[42px]'>
-                    {item.title}
+                    {item.name}
                   </h2>
-
-                  {/* DATE */}
-                  <span className='text-[11px] text-white/30 mb-4'>
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleDateString()
-                      : 'No Date'}
-                  </span>
 
                   {/* ACTION */}
                   <div className='flex gap-2 mt-auto'>
@@ -276,7 +263,7 @@ export default function CertificatesPage() {
             {/* HEADER */}
             <div className='flex items-center justify-between mb-5'>
               <h2 className='text-lg sm:text-xl font-semibold'>
-                {editId ? 'Edit Certificate' : 'Add Certificate'}
+                {editId ? 'Edit Technology' : 'Add Technology'}
               </h2>
 
               <button
@@ -299,7 +286,7 @@ export default function CertificatesPage() {
                   <Upload size={24} className='text-white/50 mb-2' />
 
                   <p className='text-sm text-white/60'>
-                    Upload Certificate Image
+                    Upload Technology Image
                   </p>
                 </>
               )}
@@ -312,11 +299,11 @@ export default function CertificatesPage() {
               />
             </label>
 
-            {/* TITLE */}
+            {/* NAME */}
             <input
-              placeholder='Certificate Title'
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              placeholder='Technology Name'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className='w-full px-4 py-3 rounded-2xl bg-[#0f0f0f] border border-white/10 outline-none mb-5 text-sm'
             />
 

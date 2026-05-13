@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
 import {
   Lock,
   Mail,
@@ -10,47 +10,62 @@ import {
   EyeOff,
   ShieldCheck,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react'
+import { FaGithub, FaGoogle, FaApple } from 'react-icons/fa'
 
 export default function LoginPage() {
-  const router = useRouter();
+  const router = useRouter()
+  const supabase = createClient()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
-  const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
 
   const handleLogin = async () => {
-    setErrorMsg("");
-    setSuccessMsg("");
+    setErrorMsg('')
+    setSuccessMsg('')
 
     if (!email || !password) {
-      setErrorMsg("Please fill email and password");
-      return;
+      setErrorMsg('Please enter both email and password.')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    });
+    })
 
-    setLoading(false);
+    setLoading(false)
 
     if (error) {
-      setErrorMsg("Invalid email or password");
+      setErrorMsg('Invalid email or password. Please try again.')
     } else {
-      setSuccessMsg("Login success, redirecting...");
+      setSuccessMsg('Login successful! Redirecting to the dashboard...')
       setTimeout(() => {
-        router.push("/admin/dashboard");
-      }, 800);
+        router.push('/admin')
+      }, 800)
     }
-  };
+  }
+
+  const handleOAuthLogin = async (provider: 'google' | 'github' | 'apple') => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (error) {
+      setErrorMsg(error.message)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] relative overflow-hidden flex items-center justify-center px-4">
@@ -67,12 +82,10 @@ export default function LoginPage() {
               <ShieldCheck size={28} className="text-white" />
             </div>
 
-            <h1 className="text-2xl font-bold text-white">
-              Admin Login
-            </h1>
+            <h1 className="text-2xl font-bold text-white">Admin Login</h1>
 
             <p className="text-sm text-white/40 mt-2">
-              Login to access dashboard panel
+              Login to access the dashboard panel
             </p>
           </div>
 
@@ -92,9 +105,7 @@ export default function LoginPage() {
 
           {/* EMAIL */}
           <div className="mb-4">
-            <label className="text-sm text-white/50 mb-2 block">
-              Email
-            </label>
+            <label className="text-sm text-white/50 mb-2 block">Email</label>
 
             <div className="relative">
               <Mail
@@ -104,7 +115,7 @@ export default function LoginPage() {
 
               <input
                 type="email"
-                placeholder="masukan email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-[56px] rounded-2xl bg-[#0c0c0c] border border-white/10 pl-12 pr-4 text-white outline-none focus:border-white/20 transition"
@@ -114,9 +125,7 @@ export default function LoginPage() {
 
           {/* PASSWORD */}
           <div className="mb-6">
-            <label className="text-sm text-white/50 mb-2 block">
-              Password
-            </label>
+            <label className="text-sm text-white/50 mb-2 block">Password</label>
 
             <div className="relative">
               <Lock
@@ -125,27 +134,19 @@ export default function LoginPage() {
               />
 
               <input
-                type={showPassword ? "text" : "password"}
-                placeholder="masukan password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
                 value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-[56px] rounded-2xl bg-[#0c0c0c] border border-white/10 pl-12 pr-14 text-white outline-none focus:border-white/20 transition"
               />
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
+                onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-white/35 hover:text-white transition"
               >
-                {showPassword ? (
-                  <EyeOff size={18} />
-                ) : (
-                  <Eye size={18} />
-                )}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
@@ -158,18 +159,44 @@ export default function LoginPage() {
           >
             {loading ? (
               <>
-                <Loader2
-                  size={18}
-                  className="animate-spin"
-                />
+                <Loader2 size={18} className="animate-spin" />
                 Signing In...
               </>
             ) : (
-              "Login"
+              'Login'
             )}
           </button>
+
+          {/* DIVIDER */}
+          <div className="flex items-center gap-4 my-6">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-sm text-white/40">OR</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
+          {/* SOCIAL LOGIN */}
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => handleOAuthLogin('google')}
+              className="w-1/3 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition"
+            >
+              <FaGoogle size={20} />
+            </button>
+            <button
+              onClick={() => handleOAuthLogin('github')}
+              className="w-1/3 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition"
+            >
+              <FaGithub size={20} />
+            </button>
+            <button
+              onClick={() => handleOAuthLogin('apple')}
+              className="w-1/3 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition"
+            >
+              <FaApple size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

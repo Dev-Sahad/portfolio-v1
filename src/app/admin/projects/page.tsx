@@ -15,25 +15,31 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*");
-  
+    const checkUserAndFetchProjects = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.push("/admin/login");
+        return;
+      }
+
+      const { data, error } = await supabase.from("projects").select("*");
+
       if (!error && data) {
         const sortedProjects = data.sort(
           (a, b) =>
-            new Date(a.created_at).getTime() -
-            new Date(b.created_at).getTime()
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
-  
+
         setProjects(sortedProjects);
       }
-  
+
       setLoading(false);
     };
 
-    fetchProjects();
+    checkUserAndFetchProjects();
 
     const channel = supabase
       .channel("projects-realtime")
@@ -45,7 +51,7 @@ export default function ProjectsPage() {
           table: "projects",
         },
         () => {
-          fetchProjects();
+          checkUserAndFetchProjects();
         }
       )
       .subscribe();
@@ -53,7 +59,7 @@ export default function ProjectsPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [router]);
 
   const handleAdd = (newProject: any) => {
     setProjects((prev) => {
@@ -61,8 +67,7 @@ export default function ProjectsPage() {
 
       return updated.sort(
         (a, b) =>
-          new Date(a.created_at).getTime() -
-          new Date(b.created_at).getTime()
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       );
     });
   };
@@ -80,9 +85,7 @@ export default function ProjectsPage() {
           {/* HEADER */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5 mb-8">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">
-                Projects
-              </h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">Projects</h1>
 
               <p className="text-white/40 text-sm mt-1">
                 Manage your portfolio projects
@@ -100,9 +103,7 @@ export default function ProjectsPage() {
 
           {/* GRID */}
           {loading ? (
-            <div className="text-white/40 text-sm">
-              Loading projects...
-            </div>
+            <div className="text-white/40 text-sm">Loading projects...</div>
           ) : projects.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] h-[240px] flex items-center justify-center text-white/35">
               No projects found

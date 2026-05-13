@@ -18,7 +18,7 @@ const menus = [
   {
     name: "Dashboard",
     icon: LayoutDashboard,
-    path: "/admin/dashboard",
+    path: "/admin",
   },
   {
     name: "Projects",
@@ -36,9 +36,9 @@ const menus = [
     path: "/admin/comments",
   },
   {
-    name: "Tech Stack",
+    name: "Technologies",
     icon: Layers,
-    path: "/admin/tech",
+    path: "/admin/technologies",
   },
 ];
 

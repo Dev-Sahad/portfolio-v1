@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/Sidebar";
 import { supabase } from "@/lib/supabase";
 import Swal from "sweetalert2";
@@ -14,11 +15,18 @@ import {
 } from "lucide-react";
 
 export default function AdminCommentsPage() {
+  const router = useRouter();
   const [comments, setComments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState<Record<number, string>>({});
 
   const fetchComments = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      router.push("/admin/login");
+      return;
+    }
+
     setLoading(true);
 
     const { data } = await supabase
@@ -29,7 +37,7 @@ export default function AdminCommentsPage() {
 
     setComments(data || []);
     setLoading(false);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchComments();
