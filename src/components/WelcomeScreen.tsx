@@ -199,7 +199,7 @@ export default function WelcomeScreen() {
             color: 'rgba(255,255,255,0.7)',
           }}
         >
-          www.dev-sahad.vercel.app
+          https://github.com/Dev-Sahad
         </motion.div>
       </motion.div>
     </div>
