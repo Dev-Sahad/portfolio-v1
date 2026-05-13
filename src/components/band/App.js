@@ -74,15 +74,15 @@ const links = [
 const socials = [
   {
     name: 'Github',
-    url: 'https://github.com/fiqryq',
+    url: 'https://github.com/Dev-Sahad',
   },
   {
     name: 'Linkedin',
-    url: 'https://www.linkedin.com/in/fiqry-choerudin/',
+    url: 'https://www.linkedin.com/in/muhammad-sahad-78b827352',
   },
   {
     name: 'Instagram',
-    url: 'https://www.instagram.com/fiqryq_',
+    url: 'https://www.instagram.com/sahad_____sha',
   },
 ]
 
