@@ -2,26 +2,24 @@
 
 export const dynamicParams = true;
 
-export async function generateStaticParams() {
-  return[];
-}
-  try {
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-    const { data: projects } = await supabase
-      .from('projects')
-      .select('id')
-      .order('created_at', { ascending: false })
-    return (projects || []).map((project: { id: string | number }) => ({
-      id: String(project.id),
-    }))
-  } catch {
-    return []
-  }
-}
+// export async function generateStaticParams() {
+//   try {
+//     const { createClient } = await import('@supabase/supabase-js')
+//     const supabase = createClient(
+//       process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+//     )
+//     const { data: projects } = await supabase
+//       .from('projects')
+//       .select('id')
+//       .order('created_at', { ascending: false })
+//     return (projects || []).map((project: { id: string | number }) => ({
+//       id: String(project.id),
+//     }))
+//   } catch {
+//     return []
+//   }
+// }
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -41,7 +39,7 @@ import {
 } from 'lucide-react'
 
 export default function PortfolioDetailPage() {
-  const { id } = useParams()
+  const id = useParams()?.id;
   const router = useRouter()
 
   const [project, setProject] = useState<any>({
@@ -59,8 +57,10 @@ export default function PortfolioDetailPage() {
   const [previewOpen, setPreviewOpen] = useState(false)
 
   useEffect(() => {
-    fetchProject()
-  }, [])
+    if (id) {
+      fetchProject()
+    }
+  }, [id])
 
   const fetchProject = async () => {
     const { data } = await supabase
@@ -325,7 +325,6 @@ export default function PortfolioDetailPage() {
               )}
             </motion.div>
 
-            {/* TECH */}
             {/* TECH */}
 <motion.div
   initial={{ opacity: 0 }}

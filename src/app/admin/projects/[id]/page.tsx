@@ -19,21 +19,21 @@ import {
 } from "lucide-react";
 
 // Generate static params for all projects (required for static export)
-export async function generateStaticParams() {
-  try {
-    const { data: projects } = await supabase
-      .from("projects")
-      .select("id")
-      .order("created_at", { ascending: false });
+// export async function generateStaticParams() {
+//   try {
+//     const { data: projects } = await supabase
+//       .from("projects")
+//       .select("id")
+//       .order("created_at", { ascending: false });
 
-    return (projects || []).map((project: any) => ({
-      id: String(project.id),
-    }));
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return [];
-  }
-}
+//     return (projects || []).map((project: any) => ({
+//       id: String(project.id),
+//     }));
+//   } catch (error) {
+//     console.error("Error generating static params:", error);
+//     return [];
+//   }
+// }
 
 interface Project {
   id: string | number;
@@ -48,7 +48,7 @@ interface Project {
 }
 
 export default function ProjectDetailPage() {
-  const { id } = useParams();
+  const id = useParams()?.id;
   const router = useRouter();
 
   const [project, setProject] = useState<Project | null>(null);
@@ -59,7 +59,9 @@ export default function ProjectDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchProject();
+    if (id) {
+      fetchProject();
+    }
   }, [id]);
 
   const fetchProject = async () => {
@@ -596,4 +598,20 @@ export default function ProjectDetailPage() {
           <>
             <button
               onClick={() => setEditMode(true)}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl border border-w
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition"
+            >
+              Edit
+            </button>
+
+            <button
+              onClick={handleDelete}
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition"
+            >
+              Delete
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
