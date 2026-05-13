@@ -8,8 +8,12 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/admin";
 
   if (code) {
-    const supabase = createClient();
+    // FIX: You must await the creation of the Supabase client
+    const supabase = await createClient(); 
+    
+    // Now 'supabase' is the client and has the 'auth' property
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
