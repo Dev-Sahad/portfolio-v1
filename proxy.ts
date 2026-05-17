@@ -1,7 +1,8 @@
+// proxy.ts
 import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Logic: First refresh the session, then return the response
   return await updateSession(request)
 }
