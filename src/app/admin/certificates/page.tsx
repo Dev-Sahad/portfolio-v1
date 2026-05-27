@@ -10,7 +10,7 @@ import { createClient } from '@/utils/supabase/client';
 import Swal from 'sweetalert2';
 
 export default function CertificatesPage() {
-  const supabase = createClient();
+  const supabase = typeof window !== 'undefined' ? createClient() : null as any;
   const router = useRouter();
 
   const [certificates, setCertificates] = useState<any[]>([]);

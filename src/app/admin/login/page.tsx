@@ -1,4 +1,5 @@
 'use client'
+export const dynamic = 'force-dynamic';
 
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
@@ -15,7 +16,7 @@ import { FaGithub, FaGoogle, FaApple } from 'react-icons/fa'
 
 export default function LoginPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = typeof window !== 'undefined' ? createClient() : null as any;
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
