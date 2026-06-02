@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation'
 function Word({ children, ...props }) {
   const color = new THREE.Color()
   const fontProps = {
-    font: './fonts/inter.woff',
     fontSize: 2.5,
     letterSpacing: -0.05,
     lineHeight: 1,
@@ -34,11 +33,15 @@ function Word({ children, ...props }) {
   }, [hovered])
 
   useFrame(({ camera }) => {
+    if (!ref.current) return
+
     ref.current.quaternion.copy(camera.quaternion)
-    ref.current.material.color.lerp(
-      color.set(hovered ? '#fa2720' : 'white'),
-      0.1,
-    )
+    if (ref.current.material) {
+      ref.current.material.color.lerp(
+        color.set(hovered ? '#fa2720' : 'white'),
+        0.1,
+      )
+    }
   })
 
   return (
