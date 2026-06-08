@@ -34,10 +34,10 @@ export default function DashboardPage() {
   const [authorized, setAuthorized] = useState(false);
 
   const [stats, setStats] = useState<Stats>({
-    projects: 0,
-    certificates: 0,
-    comments: 0,
-    pinned: 0,
+    projects: 4,
+    certificates: 2,
+    comments: 100+,
+    pinned: 2,
     technologies: 0,
   });
 
