@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,6 +42,11 @@ const menus = [
     name: "Technologies",
     icon: Layers,
     path: "/admin/technologies",
+  },
+  {
+    name: "3D Scene",
+    icon: Sparkles,
+    path: "/admin/scene3d",
   },
 ];
 

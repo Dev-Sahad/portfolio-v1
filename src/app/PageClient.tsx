@@ -10,6 +10,7 @@ import About from '@/components/sections/About'
 import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
 import ContactSection from '@/components/sections/contact/ContactSection'
 import WelcomeScreen from '@/components/WelcomeScreen'
+import { useVisitor } from '@/hooks/useVisitor'
 
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
@@ -22,11 +23,13 @@ export default function PageClient({ projects, technologies }: PageClientProps) 
   const [showWelcome, setShowWelcome] = useState(false)
   const [showApp, setShowApp] = useState(false)
 
+  // Track visitor + live viewers
+  useVisitor()
+
   useEffect(() => {
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
-    // Don't show intro when navigating to a specific section
     if (currentHash && currentHash !== '') {
       setShowApp(true)
       return
@@ -35,25 +38,14 @@ export default function PageClient({ projects, technologies }: PageClientProps) 
     setShowWelcome(true)
 
     const navEntries = performance.getEntriesByType('navigation')
-    const navigationType =
-      navEntries.length > 0
-        ? (navEntries[0] as PerformanceNavigationTiming).type
-        : null
-
+    const navigationType = navEntries.length > 0 ? (navEntries[0] as PerformanceNavigationTiming).type : null
     const isReload = navigationType === 'reload'
 
     if (isReload && pathname === '/') {
       sessionStorage.removeItem('introPlayed')
       sessionStorage.removeItem('heroPlayed')
-
-      if (window.location.hash) {
-        history.replaceState(null, '', '/')
-      }
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'auto',
-      })
+      if (window.location.hash) history.replaceState(null, '', '/')
+      window.scrollTo({ top: 0, behavior: 'auto' })
     }
 
     if (!hasPlayedIntro()) {
@@ -62,7 +54,6 @@ export default function PageClient({ projects, technologies }: PageClientProps) 
         setShowApp(true)
         setIntroPlayed()
       }, 2800)
-
       return () => clearTimeout(timer)
     } else {
       setShowWelcome(false)
@@ -73,7 +64,6 @@ export default function PageClient({ projects, technologies }: PageClientProps) 
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
       <AnimatedBackground />
-
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Navbar />
         <Hero showApp={showApp} />
@@ -88,15 +78,8 @@ export default function PageClient({ projects, technologies }: PageClientProps) 
             initial={{ y: 0 }}
             animate={{ y: 0 }}
             exit={{ y: '-100%' }}
-            transition={{
-              duration: 1.2,
-              ease: [0.76, 0, 0.24, 1],
-            }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 9999,
-            }}
+            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+            style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
           >
             <WelcomeScreen />
           </motion.div>
