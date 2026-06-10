@@ -36,8 +36,8 @@ export const defaultSiteSettings: SiteSettings = {
   github_url: 'https://github.com/Dev-Sahad',
   linkedin_url: 'https://www.linkedin.com/in/muhammad-sahad-78b827352',
   instagram_url: 'https://www.instagram.com/sahad_____sha/',
-  youtube_url: 'https://youtube.com/@zettaajah?si=QRjJGD4zCQG8aIHX',
-  tiktok_url: 'https://www.tiktok.com/@itsme.ikky_?_r=1&_t=ZS-95yAYr5PHUb',
+  youtube_url: 'https://www.youtube.com/@SAHAD-IS-LIVE',
+  tiktok_url: 'https://www.tiktok.com/@sahad_____sha?_r=1&_t=ZS-975TzehiVhI',
   contact_heading: 'Contact Me',
   contact_subheading: "Have something in mind? Send a message and let's connect.",
 }

@@ -49,9 +49,9 @@ export default function ContactForm({ settings }: ContactFormProps) {
 
   const socialLinks = [
     { title: 'Instagram', user: '@sahad_____sha', icon: FaInstagram, link: settings.instagram_url },
-    { title: 'Youtube', user: '@zettaajah', icon: FaYoutube, link: settings.youtube_url },
+    { title: 'Youtube', user: '@SAHAD-IS-LIVE', icon: FaYoutube, link: settings.youtube_url },
     { title: 'Github', user: '@Dev-Sahad', icon: FaGithub, link: settings.github_url },
-    { title: 'TikTok', user: '@itsme.ikky_', icon: FaTiktok, link: settings.tiktok_url },
+    { title: 'TikTok', user: '@sahad_____sha', icon: FaTiktok, link: settings.tiktok_url },
   ].filter((item) => item.link)
 
   const handleSubmit = async (event: FormEvent) => {
