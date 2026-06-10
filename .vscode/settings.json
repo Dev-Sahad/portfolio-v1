@@ -1,0 +1,12 @@
+{
+    "chat.disableAIFeatures": false,
+    "terminal.integrated.initialHintCopilotCli": true,
+    "github.copilot.chat.agent.autoFix": true,
+    "github.copilot.chat.alternateGeminiModelFPrompt.enabled": true,
+    "github.copilot.chat.alternateGptPrompt.enabled": true,
+    "github.copilot.chat.anthropic.tools.websearch.enabled": true,
+    "github.copilot.chat.claude47OpusPrompt.enabled": true,
+    "github.copilot.chat.claudeAgent.allowAutoPermissions": true,
+    "github.copilot.chat.claudeAgent.allowDangerouslySkipPermissions": true,
+    "github.copilot.chat.codesearch.enabled": true
+}
