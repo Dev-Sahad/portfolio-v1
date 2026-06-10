@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/Sidebar";
+import HiddenAdminAccess from "@/components/HiddenAdminAccess";
 import { supabase } from "@/lib/supabase";
 import {
   Eye, MessageSquare, Layers, RefreshCcw, TrendingUp,
@@ -293,6 +294,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
+      <HiddenAdminAccess />
     </div>
   );
 }

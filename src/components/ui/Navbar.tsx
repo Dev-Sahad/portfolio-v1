@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 
 export default function Navbar() {
+  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [open, setOpen] = useState(false)
@@ -156,16 +158,47 @@ export default function Navbar() {
           border: '1px solid var(--border)',
         }}
       >
-        <span
-          style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 13,
-            color: 'var(--text-secondary)',
-            letterSpacing: '0.1em',
-          }}
-        >
-          Dev-Sahad
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 13,
+              color: 'var(--text-secondary)',
+              letterSpacing: '0.1em',
+            }}
+          >
+            Dev-Sahad
+          </span>
+
+          <button
+            onClick={() => router.push('/admin/login')}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              border: '1px solid var(--border)',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.25s ease',
+              fontSize: 16,
+              color: 'var(--text-secondary)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+              e.currentTarget.style.borderColor = 'var(--text-primary)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'
+              e.currentTarget.style.borderColor = 'var(--border)'
+            }}
+            title="Admin Login"
+          >
+            ⚙️
+          </button>
+        </div>
 
         {!isMobile && (
           <div style={{ display: 'flex', gap: 40 }}>
